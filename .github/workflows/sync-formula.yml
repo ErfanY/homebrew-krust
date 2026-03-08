@@ -1,0 +1,68 @@
+name: Sync krust formula
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag in source repo (for example: v0.1.0)"
+        required: true
+        type: string
+      source_repo:
+        description: "Source repository that publishes release assets"
+        required: false
+        default: "ErfanY/krust"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tap
+        uses: actions/checkout@v4
+
+      - name: Download release checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          SOURCE_REPO: ${{ inputs.source_repo }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          gh release download "${TAG}" \
+            --repo "${SOURCE_REPO}" \
+            --pattern "SHA256SUMS" \
+            --dir dist
+
+      - name: Generate formula
+        env:
+          TAG: ${{ inputs.tag }}
+          SOURCE_REPO: ${{ inputs.source_repo }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${TAG#v}"
+          ./scripts/generate_formula.sh \
+            --version "${VERSION}" \
+            --repo "${SOURCE_REPO}" \
+            --checksums dist/SHA256SUMS \
+            --output Formula/krust.rb
+
+      - name: Commit formula
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- Formula/krust.rb; then
+            echo "No formula update needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/krust.rb
+          git commit -m "krust ${INPUT_TAG#v}"
+          git push
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
