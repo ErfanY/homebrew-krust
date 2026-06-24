@@ -1,22 +1,22 @@
 class Krust < Formula
   desc "Latency-first Kubernetes terminal navigator"
   homepage "https://github.com/ErfanY/krust"
-  version "0.5.1"
+  version "0.6.0"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/ErfanY/krust/releases/download/v#{version}/krust-aarch64-apple-darwin.tar.gz"
-      sha256 "349f9a6a8e3bc781591dd997addc9061efbec5a90a3bc4db8059467d383efe9e"
+      sha256 "983ac3968f3619d2505959bbacf33bc714f49a573af4e6abc9cadf503c2e0761"
     else
       url "https://github.com/ErfanY/krust/releases/download/v#{version}/krust-x86_64-apple-darwin.tar.gz"
-      sha256 "f3251e7eda63b455f06b4a7d3b11620790c1cb446e707ed395c46af4c0eb4dee"
+      sha256 "f38b82d1200922b735761e88739e58b5ba6f0b19bdf7322de5785015188e09aa"
     end
   end
 
   on_linux do
     url "https://github.com/ErfanY/krust/releases/download/v#{version}/krust-x86_64-unknown-linux-gnu.tar.gz"
-    sha256 "5ee0ce6c5c1a8f357f6cd2aebbdd34708e69619e595b30cad7c7cf9aa73d16dd"
+    sha256 "bc37517a968c2b67f4ac7e6d6cde3373d304279824c3497b37a7ce89e4038487"
   end
 
   def install
